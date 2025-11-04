@@ -1,0 +1,21 @@
+<div class="container mt-4">
+    <h2>Мои заявки</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Вакансия</th>
+                <th>Статус</th>
+                <th>Дата подачи</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.job.title }}</td>
+                <td>{{ app.status }}</td>
+                <td>{{ app.applied_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
