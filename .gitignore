@@ -1,0 +1,25 @@
+# Базы данных
+db.sqlite3
+*.sqlite3
+
+# Виртуальное окружение
+venv/
+env/
+ENV/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Логи, медиа
+*.log
+media/
+staticfiles/
