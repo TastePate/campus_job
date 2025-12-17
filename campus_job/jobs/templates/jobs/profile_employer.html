@@ -5,7 +5,9 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Мой профиль (Работодатель)</h2>
-
+    <a href="{% url 'employer_profile_edit' %}" class="btn btn-outline-primary">
+        ✏️ Редактировать профиль организации
+    </a>
     <!-- Мои вакансии -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">

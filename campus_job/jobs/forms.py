@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Job, Resume
+from .models import Profile, Job, Resume, Employer
 
 
 class RegisterForm(forms.ModelForm):
@@ -43,4 +43,20 @@ class ResumeForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Например: Junior Python Developer'}),
             'content': forms.Textarea(attrs={'rows': 15, 'placeholder': 'Опишите ваш опыт, навыки, образование...'}),
+        }
+
+
+class EmployerForm(forms.ModelForm):
+    class Meta:
+        model = Employer
+        fields = ['org_name', 'description', 'department']
+        widgets = {
+            'org_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название вашей организации'}),
+            'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control', 'placeholder': 'Расскажите о компании, ценностях, команде...'}),
+            'department': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'org_name': 'Название организации',
+            'description': 'Описание',
+            'department': 'Кафедра / Подразделение',
         }

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .decorators import unauthenticated_user
-from .forms import RegisterForm, ResumeForm
+from .forms import RegisterForm, ResumeForm, EmployerForm
 from .models import Job, Resume, Application, Profile, Employer
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -154,3 +154,24 @@ def resume_create(request):
         form = ResumeForm()
 
     return render(request, 'jobs/resume_create.html', {'form': form})
+
+
+@login_required
+def employer_profile_edit(request):
+    if request.user.profile.role != 'employer':
+        return redirect('profile')
+
+    employer, _ = Employer.objects.get_or_create(
+        user=request.user,
+        defaults={'org_name': request.user.username + ' Organization'}
+    )
+
+    if request.method == 'POST':
+        form = EmployerForm(request.POST, instance=employer)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = EmployerForm(instance=employer)
+
+    return render(request, 'jobs/employer_profile_edit.html', {'form': form})
