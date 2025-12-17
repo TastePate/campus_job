@@ -5,6 +5,7 @@ from .forms import RegisterForm
 from .models import Job, Resume, Application
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 # Главная — список вакансий
 @login_required
@@ -50,7 +51,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('jobs')
+            return redirect('profile')
     else:
         form = RegisterForm()
 
@@ -60,3 +61,33 @@ def register_view(request):
 @unauthenticated_user
 def landing_view(request):
     return render(request, 'jobs/landing.html')
+
+@login_required
+def profile_view(request):
+    profile = request.user.profile
+
+    if profile.role == 'student':
+        return redirect('job_list')
+
+    elif profile.role == 'employer':
+        jobs = Job.objects.filter(employer=request.user)
+        applications = Application.objects.filter(job__in=jobs)
+        return render(request, 'jobs/profile_employer.html', {'applications': applications})
+
+@login_required
+def accept_application(request, app_id):
+    app = get_object_or_404(Application, id=app_id)
+    if request.user != app.job.employer:
+        return HttpResponseForbidden()
+    app.status = 'accepted'
+    app.save()
+    return redirect('profile')
+
+@login_required
+def reject_application(request, app_id):
+    app = get_object_or_404(Application, id=app_id)
+    if request.user != app.job.employer:
+        return HttpResponseForbidden()
+    app.status = 'rejected'
+    app.save()
+    return redirect('profile')
