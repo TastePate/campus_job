@@ -70,7 +70,7 @@ class JobAPITests(APITestCase):
     def test_application_create_invalid_resume(self):
         self.client.force_authenticate(user=self.student)
         url = reverse('api-jobs-apply', kwargs={'pk': self.job.pk})
-        data = {'resume': 99999, 'cover_letter': 'Hello'}  # несуществующее резюме
+        data = {'resume': 99999, 'cover_letter': 'Hello'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -108,7 +108,6 @@ class JobAPITests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        # Заявка не должна создаться
         self.assertEqual(Application.objects.count(), 0)
 
     def test_job_list_fields(self):
