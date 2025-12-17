@@ -1,0 +1,88 @@
+{% extends 'jobs/base.html' %}
+
+{% block title %}Отклик на "{{ application.job.title }}" — Campus Jobs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Отклик от {{ student.get_full_name|default:student.username }}</h4>
+                    <span class="badge bg-light text-dark fs-6">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h5>Вакансия</h5>
+                    <p class="lead"><strong>{{ application.job.title }}</strong></p>
+
+                    <hr>
+
+                    <h5>Сопроводительное письмо</h5>
+                    {% if application.cover_letter %}
+                        <p class="preserve-whitespace">{{ application.cover_letter|linebreaks }}</p>
+                    {% else %}
+                        <p class="text-muted fst-italic">Сопроводительное письмо не прикреплено</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <h5>Резюме: {{ application.resume.title }}</h5>
+                    <div class="bg-light p-4 rounded preserve-whitespace">
+                        {{ application.resume.content|linebreaks }}
+                    </div>
+
+                    <hr>
+
+                    <div class="text-muted small">
+                        Отклик отправлен: {{ application.applied_at|date:"d.m.Y в H:i" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body text-center">
+                    <h6>Действия по отклику</h6>
+
+                    {% if application.status == 'applied' %}
+                        <form method="post" class="mb-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="btn btn-success w-100 mb-2">
+                                ✓ Принять
+                            </button>
+                        </form>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="btn btn-danger w-100">
+                                ✗ Отклонить
+                            </button>
+                        </form>
+                    {% else %}
+                        <p class="text-muted">Решение уже принято</p>
+                    {% endif %}
+
+                    <hr class="my-3">
+
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary w-100">
+                        ← Назад к откликам
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preserve-whitespace {
+        white-space: pre-wrap;
+    }
+</style>
+{% endblock %}

@@ -39,29 +39,23 @@
             {% if applications %}
                 <ul class="list-group list-group-flush">
                     {% for app in applications %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
+                       <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'application_detail' app.id %}" class="text-decoration-none">
                                 <strong>{{ app.user.get_full_name|default:app.user.username }}</strong>
                                 → {{ app.job.title }}
                                 <br>
                                 <small class="text-muted">
                                     Резюме: {{ app.resume.title }} • {{ app.applied_at|date:"d.m.Y" }}
                                 </small>
-                            </div>
+                            </a>
 
-                            <div>
+                            <div class="mt-2">
                                 {% if app.status == 'applied' %}
-                                    <a href="{% url 'accept_application' app.id %}" class="btn btn-success btn-sm">Принять</a>
-                                    <a href="{% url 'reject_application' app.id %}" class="btn btn-danger btn-sm">Отклонить</a>
-                                {% else %}
-                                    <span class="badge
-                                        {% if app.status == 'accepted' %}bg-success
-                                        {% elif app.status == 'rejected' %}bg-danger
-                                        {% elif app.status == 'applied' %}bg-warning text-dark
-                                        {% else %}bg-secondary
-                                        {% endif %}">
-                                        {{ app.get_status_display }}
-                                    </span>
+                                    <span class="badge bg-warning text-dark">На рассмотрении</span>
+                                {% elif app.status == 'accepted' %}
+                                    <span class="badge bg-success">Принято</span>
+                                {% elif app.status == 'rejected' %}
+                                    <span class="badge bg-danger">Отказано</span>
                                 {% endif %}
                             </div>
                         </li>

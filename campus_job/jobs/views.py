@@ -210,3 +210,28 @@ def resume_delete(request, resume_id):
         return redirect('profile')
 
     return render(request, 'jobs/resume_delete.html', {'resume': resume})
+
+
+@login_required
+def application_detail(request, app_id):
+    application = get_object_or_404(Application, id=app_id)
+
+    if request.user.profile.role != 'employer' or request.user != application.job.employer.user:
+        return HttpResponseForbidden()
+
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'accept':
+            application.status = 'accepted'
+        elif action == 'reject':
+            application.status = 'rejected'
+        application.save()
+        return redirect('application_detail', app_id=app_id)
+
+    return render(request, 'jobs/application_detail.html', {
+        'application': application,
+        'student': application.user,
+        'resume': application.resume,
+        'job': application.job,
+    })
