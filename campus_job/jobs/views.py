@@ -1,26 +1,24 @@
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .decorators import unauthenticated_user
-from .forms import RegisterForm, ResumeForm, EmployerForm
+from .forms import RegisterForm, ResumeForm, EmployerForm, LoginForm
 from .models import Job, Resume, Application, Profile, Employer, Notification
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from .forms import JobForm
 
-# Главная — список вакансий
 @login_required
 def job_list(request):
     jobs = Job.objects.all()
     return render(request, 'jobs/jobs.html', {'jobs': jobs})
 
-# Детали вакансии
 @login_required
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     return render(request, 'jobs/job_detail.html', {'job': job})
 
-# Подать заявку
 @login_required
 def apply_job(request, pk):
     job = get_object_or_404(Job, pk=pk)
@@ -38,7 +36,6 @@ def apply_job(request, pk):
         return render(request, 'jobs/apply_success.html', {'job': job})
     return render(request, 'jobs/apply_form.html', {'job': job, 'resumes': resumes})
 
-# Мои заявки — список заявок пользователя
 @login_required
 def my_applications(request):
     applications = Application.objects.filter(user=request.user)
@@ -52,14 +49,25 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-
-            Profile.objects.get_or_create(user=user, defaults={'role': 'student'})
-
             return redirect('profile')
     else:
         form = RegisterForm()
 
     return render(request, 'jobs/register.html', {'form': form})
+
+
+@unauthenticated_user
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('profile')
+    else:
+        form = LoginForm()
+
+    return render(request, 'jobs/login.html', {'form': form})
 
 
 @unauthenticated_user
@@ -119,11 +127,9 @@ def reject_application(request, app_id):
 
 @login_required
 def job_create(request):
-    # Проверяем, что пользователь — работодатель
     if request.user.profile.role != 'employer':
         return redirect('profile')
 
-    # Получаем или создаём объект Employer
     employer, _ = Employer.objects.get_or_create(
         user=request.user,
         defaults={'org_name': 'Моя организация'}
@@ -153,7 +159,7 @@ def resume_create(request):
             resume = form.save(commit=False)
             resume.user = request.user
             resume.save()
-            return redirect('profile')  # или на apply_form, если нужно
+            return redirect('profile')
     else:
         form = ResumeForm()
 
