@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
+from .decorators import unauthenticated_user
 from .forms import RegisterForm
 from .models import Job, Resume, Application
 from django.contrib.auth import login
@@ -42,6 +43,7 @@ def my_applications(request):
     return render(request, 'jobs/applications.html', {'applications': applications})
 
 
+@unauthenticated_user
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -55,5 +57,6 @@ def register_view(request):
     return render(request, 'jobs/register.html', {'form': form})
 
 
+@unauthenticated_user
 def landing_view(request):
     return render(request, 'jobs/landing.html')
