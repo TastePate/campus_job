@@ -260,3 +260,39 @@ def get_notifications(request):
         'count': len(list(notifications)),
         'notifications': list(notifications)
     })
+
+@login_required
+def job_edit(request, job_id):
+    if request.user.profile.role != 'employer':
+        return redirect('profile')
+
+    employer = Employer.objects.get(user=request.user)
+    job = get_object_or_404(Job, id=job_id, employer=employer)
+
+    if request.method == 'POST':
+        form = JobForm(request.POST, instance=job)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = JobForm(instance=job)
+
+    return render(request, 'jobs/job_edit.html', {
+        'form': form,
+        'job': job
+    })
+
+
+@login_required
+def job_delete(request, job_id):
+    if request.user.profile.role != 'employer':
+        return redirect('profile')
+
+    employer = Employer.objects.get(user=request.user)
+    job = get_object_or_404(Job, id=job_id, employer=employer)
+
+    if request.method == 'POST':
+        job.delete()
+        return redirect('profile')
+
+    return render(request, 'jobs/job_delete.html', {'job': job})

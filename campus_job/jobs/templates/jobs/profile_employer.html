@@ -19,14 +19,24 @@
             {% if jobs %}
                 <ul class="list-group list-group-flush">
                     {% for job in jobs %}
-                        <li class="list-group-item">
-                            <strong>{{ job.title }}</strong>
-                            <small class="text-muted ms-2">({{ job.job_type }} • {{ job.posted_at|date:"d.m.Y" }})</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ job.title }}</strong>
+                                <small class="text-muted ms-2">({{ job.get_job_type_display }} • {{ job.posted_at|date:"d.m.Y" }})</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'job_edit' job.id %}" class="btn btn-outline-primary btn-sm me-2">
+                                    ✏️ Редактировать
+                                </a>
+                                <a href="{% url 'job_delete' job.id %}" class="btn btn-outline-danger btn-sm">
+                                    🗑️ Удалить
+                                </a>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted mb-0">Вы ещё не создали ни одной вакансии.</p>
+                <p class="text-muted mb-0">Вы ещё не создали вакансий. <a href="{% url 'job_create' %}">Создайте первую</a>.</p>
             {% endif %}
         </div>
     </div>
