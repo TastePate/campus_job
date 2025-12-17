@@ -1,13 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
+
+from .forms import RegisterForm
 from .models import Job, Resume, Application
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 
 # Главная — список вакансий
-def index(request):
+@login_required
+def job_list(request):
     jobs = Job.objects.all()
-    return render(request, 'jobs/index.html', {'jobs': jobs})
+    return render(request, 'jobs/jobs.html', {'jobs': jobs})
 
 # Детали вакансии
+@login_required
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     return render(request, 'jobs/job_detail.html', {'job': job})
@@ -35,3 +40,20 @@ def apply_job(request, pk):
 def my_applications(request):
     applications = Application.objects.filter(user=request.user)
     return render(request, 'jobs/applications.html', {'applications': applications})
+
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('jobs')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'jobs/register.html', {'form': form})
+
+
+def landing_view(request):
+    return render(request, 'jobs/landing.html')
