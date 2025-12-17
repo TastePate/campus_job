@@ -71,7 +71,12 @@ def profile_view(request):
     profile = request.user.profile
 
     if profile.role == 'student':
-        return redirect('job_list')
+        resumes = Resume.objects.filter(user=request.user)
+        applications = Application.objects.filter(user=request.user).order_by('-applied_at')
+        return render(request, 'jobs/profile_student.html', {
+            'resumes': resumes,
+            'applications': applications
+        })
 
     elif profile.role == 'employer':
         employer, created = Employer.objects.get_or_create(
@@ -92,7 +97,7 @@ def profile_view(request):
 @login_required
 def accept_application(request, app_id):
     app = get_object_or_404(Application, id=app_id)
-    if request.user != app.job.employer:
+    if request.user != app.job.employer.user:
         return HttpResponseForbidden()
     app.status = 'accepted'
     app.save()
@@ -101,7 +106,7 @@ def accept_application(request, app_id):
 @login_required
 def reject_application(request, app_id):
     app = get_object_or_404(Application, id=app_id)
-    if request.user != app.job.employer:
+    if request.user != app.job.employer.user:
         return HttpResponseForbidden()
     app.status = 'rejected'
     app.save()

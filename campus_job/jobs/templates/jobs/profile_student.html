@@ -1,30 +1,94 @@
 {% extends 'jobs/base.html' %}
 
-{% block title %}Профиль студента — Campus Jobs{% endblock %}
+{% block title %}Личный кабинет — Campus Jobs{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Мой профиль (Студент)</h2>
+    <h2 class="mb-4">Личный кабинет (Студент)</h2>
 
-    <div class="card shadow-sm">
+    <!-- Мои резюме -->
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <h4 class="card-title mb-3">Мои резюме</h4>
-            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="card-title mb-0">Мои резюме</h4>
+                <a href="{% url 'resume_create' %}" class="btn btn-success">+ Новое резюме</a>
+            </div>
+
             {% if resumes %}
                 <ul class="list-group list-group-flush">
                     {% for resume in resumes %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ resume.title }}</strong>
-                                <small class="text-muted ms-2">({{ resume.created_at|date:"d.m.Y" }})</small>
-                            </div>
-                            <!-- Здесь позже можно добавить кнопки "Редактировать" / "Удалить" -->
+                        <li class="list-group-item">
+                            <strong>{{ resume.title }}</strong>
+                            <small class="text-muted ms-2">({{ resume.created_at|date:"d.m.Y" }})</small>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted">У вас пока нет резюме.</p>
-                <!-- Позже добавим кнопку "Создать резюме" -->
+                <p class="text-muted mb-0">У вас пока нет резюме. <a href="{% url 'resume_create' %}">Создайте первое</a>.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Мои отклики -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">Мои отклики</h4>
+
+            {% if applications %}
+                <div class="row">
+                    <!-- Ожидание -->
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-warning fw-bold">⏳ Ожидание</h6>
+                        <ul class="list-group">
+                            {% for app in applications %}
+                                {% if app.status == 'applied' %}
+                                    <li class="list-group-item">
+                                        <strong>{{ app.job.title }}</strong><br>
+                                        <small class="text-muted">{{ app.job.employer.org_name }} • {{ app.applied_at|date:"d.m.Y" }}</small>
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <li class="list-group-item text-muted">Нет откликов на рассмотрении</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Принято -->
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-success fw-bold">✓ Принято</h6>
+                        <ul class="list-group">
+                            {% for app in applications %}
+                                {% if app.status == 'accepted' %}
+                                    <li class="list-group-item">
+                                        <strong>{{ app.job.title }}</strong><br>
+                                        <small class="text-muted">{{ app.job.employer.org_name }}</small>
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <li class="list-group-item text-muted">Пока нет принятых заявок</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Отказано -->
+                    <div class="col-md-4 mb-3">
+                        <h6 class="text-danger fw-bold">✗ Отказано</h6>
+                        <ul class="list-group">
+                            {% for app in applications %}
+                                {% if app.status == 'rejected' %}
+                                    <li class="list-group-item">
+                                        <strong>{{ app.job.title }}</strong><br>
+                                        <small class="text-muted">{{ app.job.employer.org_name }}</small>
+                                    </li>
+                                {% endif %}
+                            {% empty %}
+                                <li class="list-group-item text-muted">Нет отказов</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">Вы ещё никуда не откликались.</p>
             {% endif %}
         </div>
     </div>
