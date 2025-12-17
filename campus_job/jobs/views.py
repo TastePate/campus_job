@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .decorators import unauthenticated_user
 from .forms import RegisterForm
-from .models import Job, Resume, Application
+from .models import Job, Resume, Application, Profile, Employer
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -51,6 +51,9 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+
+            Profile.objects.get_or_create(user=user, defaults={'role': 'student'})
+
             return redirect('profile')
     else:
         form = RegisterForm()
@@ -70,9 +73,20 @@ def profile_view(request):
         return redirect('job_list')
 
     elif profile.role == 'employer':
-        jobs = Job.objects.filter(employer=request.user)
+        employer, created = Employer.objects.get_or_create(
+            user=request.user,
+            defaults={'org_name': 'Моя организация', 'description': ''}
+        )
+
+        jobs = Job.objects.filter(employer=employer)
+
         applications = Application.objects.filter(job__in=jobs)
-        return render(request, 'jobs/profile_employer.html', {'applications': applications})
+
+        return render(request, 'jobs/profile_employer.html', {
+            'jobs': jobs,
+            'applications': applications
+        })
+
 
 @login_required
 def accept_application(request, app_id):
