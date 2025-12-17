@@ -38,10 +38,10 @@ class Employer(models.Model):
 
 class Job(models.Model):
     JOB_TYPE_CHOICES = [
-        ('part_time', 'Part-time'),
-        ('full_time', 'Full-time'),
-        ('internship', 'Internship'),
-        ('volunteer', 'Volunteer'),
+        ('part_time', 'Неполный день'),
+        ('full_time', 'Полный день'),
+        ('internship', 'Стажировка'),
+        ('volunteer', 'Волонтёрство'),
     ]
 
     location = models.ForeignKey('Location', on_delete=models.SET_NULL, null=True, blank=True)
@@ -72,9 +72,8 @@ class JobTag(models.Model):
 
 class Profile(models.Model):
     ROLE_CHOICES = [
-        ('student', 'Student'),
-        ('staff', 'Staff'),
-        ('employer', 'Employer'),
+        ('student', 'Студент'),
+        ('employer', 'Работодатель'),
     ]
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -109,10 +108,10 @@ class Resume(models.Model):
 
 class Application(models.Model):
     STATUS_CHOICES = [
-        ('applied', 'Applied'),
-        ('shortlisted', 'Shortlisted'),
-        ('rejected', 'Rejected'),
-        ('accepted', 'Accepted'),
+        ('applied', 'На рассмотрении'),
+        ('shortlisted', 'В шорт-листе'),
+        ('rejected', 'Отклонена'),
+        ('accepted', 'Принята'),
     ]
 
     job = models.ForeignKey('Job', on_delete=models.CASCADE)
