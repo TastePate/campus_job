@@ -1,24 +1,64 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ job.title }} — CampusJobs</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends 'jobs/base.html' %}
+
+{% block title %}{{ job.title }} — Campus Jobs{% endblock %}
+
+{% block content %}
 <div class="container mt-4">
-    <h1>{{ job.title }}</h1>
-    <p>{{ job.description }}</p>
-    <ul>
-        <li>Категория: {{ job.category.name }}</li>
-        <li>Тип: {{ job.get_job_type_display }}</li>
-        <li>Работодатель: {{ job.employer.org_name }}</li>
-        <li>Удалённая: {{ job.remote|yesno:"Да,Нет" }}</li>
-    </ul>
-    <a href="{% url 'apply-job' job.id %}" class="btn btn-success">Подать заявку</a>
-    <a href="{% url 'job_list' %}" class="btn btn-secondary">Назад</a>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title fw-bold mb-3">{{ job.title }}</h2>
+
+                    <div class="mb-4 text-muted">
+                        <strong>Работодатель:</strong> {{ job.employer.org_name }}<br>
+                        <strong>Опубликовано:</strong> {{ job.posted_at|date:"d.m.Y" }}
+                        {% if job.expires_at %}
+                            • <strong>До:</strong> {{ job.expires_at|date:"d.m.Y" }}
+                        {% endif %}
+                    </div>
+
+                    <h5>Описание</h5>
+                    <p class="lead">{{ job.description|linebreaks }}</p>
+
+                    <hr>
+
+                    <h5>Условия</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Тип занятости:</strong> {{ job.get_job_type_display }}</li>
+                        {% if job.category %}
+                        <li class="mb-2"><strong>Категория:</strong> {{ job.category.name }}</li>
+                        {% endif %}
+                        <li class="mb-2"><strong>Удалённая работа:</strong> {{ job.remote|yesno:"Да,Нет" }}</li>
+                        {% if job.location %}
+                        <li class="mb-2"><strong>Локация:</strong> {{ job.location }}</li>
+                        {% endif %}
+                        <li class="mb-2"><strong>Количество мест:</strong> {{ job.slots }}</li>
+                    </ul>
+
+                    <div class="mt-4">
+                        <a href="{% url 'apply-job' job.pk %}" class="btn btn-success btn-lg me-3">
+                            Подать заявку
+                        </a>
+                        <a href="{% url 'job_list' %}" class="btn btn-outline-secondary">
+                            ← Назад к вакансиям
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Быстрая заявка</h5>
+                    <p class="text-muted small">Выберите резюме и отправьте отклик</p>
+                    <a href="{% url 'apply-job' job.pk %}" class="btn btn-success w-100">
+                        Подать заявку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}

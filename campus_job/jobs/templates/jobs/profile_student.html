@@ -1,48 +1,32 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Профиль студента — Campus Jobs</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends 'jobs/base.html' %}
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% block title %}Профиль студента — Campus Jobs{% endblock %}
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/jobs/">Campus Jobs</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item me-3">
-                    <a class="nav-link" href="/profile/">Личный кабинет</a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-outline-light" href="{% url 'logout' %}">Выйти</a>
-                </li>
-            </ul>
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Мой профиль (Студент)</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">Мои резюме</h4>
+            
+            {% if resumes %}
+                <ul class="list-group list-group-flush">
+                    {% for resume in resumes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ resume.title }}</strong>
+                                <small class="text-muted ms-2">({{ resume.created_at|date:"d.m.Y" }})</small>
+                            </div>
+                            <!-- Здесь позже можно добавить кнопки "Редактировать" / "Удалить" -->
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">У вас пока нет резюме.</p>
+                <!-- Позже добавим кнопку "Создать резюме" -->
+            {% endif %}
         </div>
     </div>
-</nav>
-
-<div class="container mt-4">
-    <h2>Мой профиль (Студент)</h2>
-
-    <h4 class="mt-3">Мои резюме</h4>
-    {% if resumes %}
-        <ul class="list-group mt-2">
-            {% for resume in resumes %}
-                <li class="list-group-item">
-                    {{ resume.title }} ({{ resume.created_at|date:"d.m.Y" }})
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>У вас пока нет резюме.</p>
-    {% endif %}
 </div>
-
-</body>
-</html>
+{% endblock %}

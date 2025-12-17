@@ -18,5 +18,7 @@ urlpatterns = [
     path('application/<int:app_id>/reject/', views.reject_application, name='reject_application'),
     path('register/', views.register_view, name='register'),
     path('login/', login_view, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout')
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('jobs/create/', views.job_create, name='job_create'),
+    path('resume/create/', views.resume_create, name='resume_create'),
 ]

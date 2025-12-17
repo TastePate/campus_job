@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .decorators import unauthenticated_user
-from .forms import RegisterForm
+from .forms import RegisterForm, ResumeForm
 from .models import Job, Resume, Application, Profile, Employer
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from .forms import JobForm
 
 # Главная — список вакансий
 @login_required
@@ -105,3 +106,46 @@ def reject_application(request, app_id):
     app.status = 'rejected'
     app.save()
     return redirect('profile')
+
+
+@login_required
+def job_create(request):
+    # Проверяем, что пользователь — работодатель
+    if request.user.profile.role != 'employer':
+        return redirect('profile')
+
+    # Получаем или создаём объект Employer
+    employer, _ = Employer.objects.get_or_create(
+        user=request.user,
+        defaults={'org_name': 'Моя организация'}
+    )
+
+    if request.method == 'POST':
+        form = JobForm(request.POST)
+        if form.is_valid():
+            job = form.save(commit=False)
+            job.employer = employer
+            job.save()
+            return redirect('profile')
+    else:
+        form = JobForm()
+
+    return render(request, 'jobs/job_create.html', {'form': form})
+
+
+@login_required
+def resume_create(request):
+    if request.user.profile.role != 'student':
+        return redirect('profile')
+
+    if request.method == 'POST':
+        form = ResumeForm(request.POST)
+        if form.is_valid():
+            resume = form.save(commit=False)
+            resume.user = request.user
+            resume.save()
+            return redirect('profile')  # или на apply_form, если нужно
+    else:
+        form = ResumeForm()
+
+    return render(request, 'jobs/resume_create.html', {'form': form})
