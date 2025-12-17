@@ -175,3 +175,38 @@ def employer_profile_edit(request):
         form = EmployerForm(instance=employer)
 
     return render(request, 'jobs/employer_profile_edit.html', {'form': form})
+
+
+@login_required
+def resume_edit(request, resume_id):
+    if request.user.profile.role != 'student':
+        return redirect('profile')
+
+    resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+
+    if request.method == 'POST':
+        form = ResumeForm(request.POST, instance=resume)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ResumeForm(instance=resume)
+
+    return render(request, 'jobs/resume_edit.html', {
+        'form': form,
+        'resume': resume
+    })
+
+
+@login_required
+def resume_delete(request, resume_id):
+    if request.user.profile.role != 'student':
+        return redirect('profile')
+
+    resume = get_object_or_404(Resume, id=resume_id, user=request.user)
+
+    if request.method == 'POST':
+        resume.delete()
+        return redirect('profile')
+
+    return render(request, 'jobs/resume_delete.html', {'resume': resume})

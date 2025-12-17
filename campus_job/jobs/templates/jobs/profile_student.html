@@ -17,9 +17,19 @@
             {% if resumes %}
                 <ul class="list-group list-group-flush">
                     {% for resume in resumes %}
-                        <li class="list-group-item">
-                            <strong>{{ resume.title }}</strong>
-                            <small class="text-muted ms-2">({{ resume.created_at|date:"d.m.Y" }})</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ resume.title }}</strong>
+                                <small class="text-muted ms-2">({{ resume.created_at|date:"d.m.Y" }})</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'resume_edit' resume.id %}" class="btn btn-outline-primary btn-sm me-2">
+                                    ✏️ Редактировать
+                                </a>
+                                <a href="{% url 'resume_delete' resume.id %}" class="btn btn-outline-danger btn-sm">
+                                    🗑️ Удалить
+                                </a>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
