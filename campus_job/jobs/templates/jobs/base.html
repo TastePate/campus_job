@@ -15,7 +15,35 @@
         <a class="navbar-brand fw-bold" href="{% if user.is_authenticated %}{% if user.profile.role == 'student' %}/jobs/{% else %}/profile/{% endif %}{% else %}/{% endif %}">
             Campus Jobs
         </a>
-
+        {% if user.is_authenticated %}
+            <div class="dropdown ms-3">
+                <button class="btn btn-outline-light position-relative" type="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                    🔔 Уведомления
+                    {% if notifications %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge">
+                            {{ notifications|length }}
+                        </span>
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end p-2" style="width: 350px;" id="notificationList">
+                    {% if notifications %}
+                        {% for notif in notifications %}
+                            <li class="dropdown-item-text small border-bottom pb-2 mb-2">
+                                <div>{{ notif.content }}</div>
+                                <div class="text-muted mt-1">{{ notif.created_at|timesince }} назад</div>
+                            </li>
+                        {% endfor %}
+                        <li class="dropdown-item text-center">
+                            <small class="text-muted">Все уведомления прочитаны при открытии</small>
+                        </li>
+                    {% else %}
+                        <li class="dropdown-item-text text-muted text-center">
+                            Нет новых уведомлений
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
         {% if user.is_authenticated %}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -53,5 +81,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% block extra_js %}{% endblock %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('notificationDropdown');
+
+    if (dropdown) {
+        dropdown.addEventListener('shown.bs.dropdown', function() {
+            fetch('{% url "mark_notifications_read" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            }).then(() => {
+                // Убираем бейджик локально
+                const badge = document.getElementById('notificationBadge');
+                if (badge) badge.style.display = 'none';
+            });
+        });
+    }
+});
+</script>
 </body>
 </html>

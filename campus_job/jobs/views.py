@@ -2,10 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .decorators import unauthenticated_user
 from .forms import RegisterForm, ResumeForm, EmployerForm
-from .models import Job, Resume, Application, Profile, Employer
+from .models import Job, Resume, Application, Profile, Employer, Notification
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from .forms import JobForm
 
 # Главная — список вакансий
@@ -71,14 +71,17 @@ def profile_view(request):
     profile = request.user.profile
 
     if profile.role == 'student':
+        notifications = Notification.objects.filter(user=request.user, read=False).order_by('-created_at')
         resumes = Resume.objects.filter(user=request.user)
         applications = Application.objects.filter(user=request.user).order_by('-applied_at')
         return render(request, 'jobs/profile_student.html', {
             'resumes': resumes,
-            'applications': applications
+            'applications': applications,
+            'notifications': notifications
         })
 
     elif profile.role == 'employer':
+        notifications = Notification.objects.filter(user=request.user, read=False).order_by('-created_at')
         employer, created = Employer.objects.get_or_create(
             user=request.user,
             defaults={'org_name': 'Моя организация', 'description': ''}
@@ -90,7 +93,8 @@ def profile_view(request):
 
         return render(request, 'jobs/profile_employer.html', {
             'jobs': jobs,
-            'applications': applications
+            'applications': applications,
+            'notifications': notifications
         })
 
 
@@ -226,7 +230,7 @@ def application_detail(request, app_id):
             application.status = 'accepted'
         elif action == 'reject':
             application.status = 'rejected'
-        application.save()
+        application.save(update_fields=['status'])
         return redirect('application_detail', app_id=app_id)
 
     return render(request, 'jobs/application_detail.html', {
@@ -234,4 +238,25 @@ def application_detail(request, app_id):
         'student': application.user,
         'resume': application.resume,
         'job': application.job,
+    })
+
+@login_required
+def mark_notifications_read(request):
+    if request.method == 'POST':
+        Notification.objects.filter(user=request.user, read=False).update(read=True)
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+
+@login_required
+def get_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user,
+        read=False
+    ).order_by('-created_at')[:10].values(
+        'content', 'created_at'
+    )
+    return JsonResponse({
+        'count': len(list(notifications)),
+        'notifications': list(notifications)
     })
