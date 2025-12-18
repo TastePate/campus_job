@@ -73,8 +73,24 @@ class JobForm(forms.ModelForm):
             'remote', 'location', 'slots', 'expires_at'
         ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 5}),
-            'expires_at': forms.DateInput(attrs={'type': 'date'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название вакансии'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Опишите вакансию...'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'job_type': forms.Select(attrs={'class': 'form-select'}),
+            'remote': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Здание, кабинет или адрес'}),
+            'slots': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'expires_at': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+        labels = {
+            'title': 'Название вакансии',
+            'description': 'Описание',
+            'category': 'Категория',
+            'job_type': 'Тип занятости',
+            'remote': 'Удалённая работа',
+            'location': 'Локация',
+            'slots': 'Количество мест',
+            'expires_at': 'Дата окончания приёма заявок',
         }
 
 
@@ -83,8 +99,19 @@ class ResumeForm(forms.ModelForm):
         model = Resume
         fields = ['title', 'content']
         widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Например: Junior Python Developer'}),
-            'content': forms.Textarea(attrs={'rows': 15, 'placeholder': 'Опишите ваш опыт, навыки, образование...'}),
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Например: Junior Python Developer'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 15,
+                'placeholder': 'Опишите ваш опыт, навыки, образование...'
+            }),
+        }
+        labels = {
+            'title': 'Заголовок резюме',
+            'content': 'Содержание резюме',
         }
 
 
